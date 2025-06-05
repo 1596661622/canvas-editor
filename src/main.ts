@@ -1797,6 +1797,8 @@ window.onload = function () {
 
   const handleContentChange = async function () {
     // 字数
+    const wordContent = await instance.command.getValue()
+    console.log(wordContent,'walker')
     const wordCount = await instance.command.getWordCount()
     document.querySelector<HTMLSpanElement>('.word-count')!.innerText = `${
       wordCount || 0
@@ -1894,7 +1896,8 @@ window.onload = function () {
       }
     }
   ])
-
+//   const controlList =  instance.command.executeSetControlValue()
+// console.log(controlList,'walker')
   // 10. 快捷键注册
   instance.register.shortcutList([
     {
@@ -1945,3 +1948,5 @@ window.onload = function () {
     }
   ])
 }
+
+

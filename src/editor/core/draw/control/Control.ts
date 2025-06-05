@@ -833,6 +833,7 @@ export class Control {
     return result
   }
 
+  //TODO 处理图片
   public setValueById(payload: ISetControlValueOption) {
     let isExistSet = false
     const { id, conceptId, areaId, value } = payload

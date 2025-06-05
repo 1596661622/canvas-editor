@@ -295,7 +295,7 @@ export class Draw {
   public setMode(payload: EditorMode) {
     if (this.mode === payload) return
     // 设置打印模式
-    if (payload === EditorMode.PRINT) {
+    if (payload === EditorMode.PRINT || payload === EditorMode.READONLY) {
       this.printModeData = {
         header: this.header.getElementList(),
         main: this.elementList,
@@ -313,6 +313,10 @@ export class Draw {
     }
     // 取消打印模式
     if (this.mode === EditorMode.PRINT && this.printModeData) {
+      this.setEditorData(this.printModeData)
+      this.printModeData = null
+    }
+    if (this.mode === EditorMode.READONLY && this.printModeData) {
       this.setEditorData(this.printModeData)
       this.printModeData = null
     }
