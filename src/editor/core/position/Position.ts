@@ -397,8 +397,11 @@ export class Position {
       x += columnOffset
       // 行存在环绕的可能性均不设置行布局
       if (!curRow.isSurround) {
-        // 计算行偏移量（行居中、居右）
-        const curRowWidth = curRow.width + (curRow.offsetX || 0)
+        // 计算行偏移量（行居中、居右），含段落左右缩进
+        const curRowWidth =
+          curRow.width +
+          (curRow.rowFlexOffsetX ?? curRow.offsetX ?? 0) +
+          (curRow.rightOffsetX || 0)
         if (curRow.rowFlex === RowFlex.CENTER) {
           x += (effectiveInnerWidth - curRowWidth) / 2
         } else if (curRow.rowFlex === RowFlex.RIGHT) {

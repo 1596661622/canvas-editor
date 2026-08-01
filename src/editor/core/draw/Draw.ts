@@ -1539,6 +1539,63 @@ export class Draw {
     )
   }
 
+  // 段落缩进：归一化缩进值（负值按0处理）并乘以缩放比例
+  private normalizeIndent(value: number | undefined, scale: number) {
+    return Math.max(0, value || 0) * scale
+  }
+
+  // 段落缩进：计算行的左侧偏移（左缩进 + 首行/悬挂缩进），列表行不参与
+  private getParagraphOffsetX(
+    element: IElement,
+    isParagraphFirstContentElement: boolean,
+    scale: number
+  ) {
+    if (element.listId) return 0
+    const left = this.normalizeIndent(element.rowIndentLeft, scale)
+    const firstLine = isParagraphFirstContentElement
+      ? this.normalizeIndent(element.rowIndent, scale)
+      : 0
+    const hanging = !isParagraphFirstContentElement
+      ? this.normalizeIndent(element.rowHangingIndent, scale)
+      : 0
+    return left + firstLine + hanging
+  }
+
+  // 段落缩进：计算行的右侧缩进，列表行不参与
+  private getParagraphRightIndent(element: IElement, scale: number) {
+    if (element.listId) return 0
+    return this.normalizeIndent(element.rowIndentRight, scale)
+  }
+
+  // 段落缩进：将段落缩进偏移应用到行（仅在未设置时写入，避免覆盖列表/控件偏移）
+  private applyParagraphRowOffset(payload: {
+    row: IRow
+    element: IElement
+    isParagraphFirstContentElement: boolean
+    scale: number
+  }) {
+    const { row, element, isParagraphFirstContentElement, scale } = payload
+    if (element.listId) return
+    const paragraphOffsetX = this.getParagraphOffsetX(
+      element,
+      isParagraphFirstContentElement,
+      scale
+    )
+    const paragraphRightIndent = this.getParagraphRightIndent(element, scale)
+    if (paragraphOffsetX && row.offsetX === undefined) {
+      row.offsetX = paragraphOffsetX
+    }
+    if (
+      (paragraphOffsetX || paragraphRightIndent) &&
+      row.rowFlexOffsetX === undefined
+    ) {
+      row.rowFlexOffsetX = paragraphOffsetX
+    }
+    if (paragraphRightIndent && row.rightOffsetX === undefined) {
+      row.rightOffsetX = paragraphRightIndent
+    }
+  }
+
   public computeRowList(payload: IComputeRowListPayload) {
     const {
       innerWidth,
@@ -1614,6 +1671,24 @@ export class Draw {
         boundingBoxAscent: 0,
         boundingBoxDescent: 0
       }
+      // 段落缩进：是否为段落的首个内容元素（首行缩进 vs 悬挂缩进）
+      const isParagraphFirstContentElement =
+        (curRow.elementList.length === 0 && curRow.startIndex === i) ||
+        (curRow.elementList.length === 1 &&
+          curRow.elementList[0]?.value === ZERO &&
+          curRow.startIndex === i - 1)
+      // 段落缩进：在测量前先把缩进偏移应用到当前行；若该元素换行需还原
+      const paragraphOffsetSnapshot = {
+        offsetX: curRow.offsetX,
+        rowFlexOffsetX: curRow.rowFlexOffsetX,
+        rightOffsetX: curRow.rightOffsetX
+      }
+      this.applyParagraphRowOffset({
+        row: curRow,
+        element,
+        isParagraphFirstContentElement,
+        scale
+      })
       // 实际可用宽度
       const offsetX =
         curRow.offsetX ||
@@ -1624,7 +1699,7 @@ export class Draw {
               : 0)) ||
         0
       const rowMaxWidth = isColumnEnabled && layout ? layout.width : innerWidth
-      const availableWidth = rowMaxWidth - offsetX
+      const availableWidth = rowMaxWidth - offsetX - (curRow.rightOffsetX || 0)
       // 增加起始位置坐标偏移量
       const isStartElement = curRow.elementList.length === 1
       x += isStartElement ? offsetX : 0
@@ -2041,6 +2116,10 @@ export class Draw {
       const isWrap = isForceBreak || isWidthNotEnough
       // 新行数据处理
       if (isWrap) {
+        // 段落缩进：当前元素换行，还原此前对 curRow 的缩进偏移写入
+        curRow.offsetX = paragraphOffsetSnapshot.offsetX
+        curRow.rowFlexOffsetX = paragraphOffsetSnapshot.rowFlexOffsetX
+        curRow.rightOffsetX = paragraphOffsetSnapshot.rightOffsetX
         const row: IRow = {
           width: metrics.width,
           height,
@@ -2052,6 +2131,13 @@ export class Draw {
           isPageBreak: element.type === ElementType.PAGE_BREAK,
           ...(isColumnEnabled ? { columnIndex: currentColumn } : {})
         }
+        // 段落缩进：换行后的新行按悬挂缩进处理（首行缩进仅作用于段落首行）
+        this.applyParagraphRowOffset({
+          row,
+          element,
+          isParagraphFirstContentElement: false,
+          scale
+        })
         // 控件缩进
         if (
           rowElement.controlComponent !== ControlComponent.PREFIX &&

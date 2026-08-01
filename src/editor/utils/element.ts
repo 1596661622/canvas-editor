@@ -1231,6 +1231,20 @@ export function convertElementToDom(
       element.rowMargin ?? options.defaultRowMargin
     ).toString()
   }
+  // 段落缩进
+  if (element.rowIndentLeft) {
+    dom.style.marginLeft = `${element.rowIndentLeft}px`
+  }
+  if (element.rowIndentRight) {
+    dom.style.marginRight = `${element.rowIndentRight}px`
+  }
+  if (element.rowHangingIndent) {
+    dom.style.paddingLeft = `${element.rowHangingIndent}px`
+    const textIndent = element.rowIndent || 0
+    dom.style.textIndent = `${textIndent - element.rowHangingIndent}px`
+  } else if (element.rowIndent) {
+    dom.style.textIndent = `${element.rowIndent}px`
+  }
   dom.innerText = element.value.replace(new RegExp(`${ZERO}`, 'g'), '\n')
   return dom
 }

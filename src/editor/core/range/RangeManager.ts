@@ -525,6 +525,10 @@ export class RangeManager {
     const highlight = curElement.highlight || null
     const rowFlex = curElement.rowFlex || null
     const rowMargin = curElement.rowMargin ?? this.options.defaultRowMargin
+    const rowIndentLeft = curElement.rowIndentLeft ?? null
+    const rowIndentRight = curElement.rowIndentRight ?? null
+    const rowIndent = curElement.rowIndent ?? null
+    const rowHangingIndent = curElement.rowHangingIndent ?? null
     const dashArray = curElement.dashArray || []
     const level = curElement.level || null
     const listType = curElement.listType || null
@@ -553,6 +557,10 @@ export class RangeManager {
       highlight,
       rowFlex,
       rowMargin,
+      rowIndentLeft,
+      rowIndentRight,
+      rowIndent,
+      rowHangingIndent,
       dashArray,
       level,
       listType,
@@ -595,6 +603,10 @@ export class RangeManager {
       highlight: null,
       rowFlex: null,
       rowMargin,
+      rowIndentLeft: null,
+      rowIndentRight: null,
+      rowIndent: null,
+      rowHangingIndent: null,
       dashArray: [],
       level: null,
       listType: null,

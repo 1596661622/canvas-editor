@@ -39,10 +39,23 @@ export interface IElementStyle {
   strikeout?: boolean
   rowFlex?: RowFlex
   rowMargin?: number
+  // 段落缩进（单位px）
+  rowIndentLeft?: number
+  rowIndentRight?: number
+  rowIndent?: number
+  rowHangingIndent?: number
   level?: TitleLevel
   title?: ITitle
   letterSpacing?: number
   textDecoration?: ITextDecoration
+}
+
+// 段落缩进设置载荷：缺省项保持原值，null/0 表示清除
+export interface IRowIndentPayload {
+  left?: number | null
+  right?: number | null
+  firstLine?: number | null
+  hanging?: number | null
 }
 
 export interface IElementRule {

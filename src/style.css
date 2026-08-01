@@ -351,6 +351,75 @@ ul {
   background-image: url('./assets/images/row-margin.svg');
 }
 
+.menu-item__row-indent {
+  position: relative;
+}
+
+.menu-item__row-indent i {
+  background-image: url('./assets/images/row-indent.svg');
+}
+
+.menu-item .menu-item__row-indent .options {
+  width: 252px;
+}
+
+.menu-item .menu-item__row-indent .row-indent-custom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 12px;
+  row-gap: 8px;
+  margin-top: 8px;
+}
+
+.menu-item .menu-item__row-indent .row-indent-custom__title {
+  grid-column: 1 / -1;
+  color: #909399;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.menu-item .menu-item__row-indent .row-indent-custom label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+  color: #606266;
+}
+
+.menu-item .menu-item__row-indent .row-indent-custom label span {
+  flex: 0 0 42px;
+  text-align: right;
+}
+
+.menu-item .menu-item__row-indent .row-indent-custom input {
+  width: 64px;
+  height: 24px;
+  box-sizing: border-box;
+  border: 1px solid #dcdfe6;
+  border-radius: 2px;
+  padding: 0 6px;
+  outline: none;
+  font-size: 12px;
+}
+
+.menu-item .menu-item__row-indent .row-indent-apply {
+  grid-column: 1 / -1;
+  height: 24px;
+  box-sizing: border-box;
+  border: 1px solid #dcdfe6;
+  border-radius: 2px;
+  padding: 0 8px;
+  background: #f5f7fa;
+  color: #303133;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.menu-item .menu-item__row-indent .row-indent-apply:hover {
+  background: #ebecef;
+}
+
 .menu-item__list {
   position: relative;
 }

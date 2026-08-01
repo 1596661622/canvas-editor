@@ -338,6 +338,70 @@ window.onload = function () {
     instance.command.executeRowMargin(Number(li.dataset.rowmargin!))
   }
 
+  // 段落缩进：当前选区字号，用于字符<->像素换算
+  let currentRangeSize = instance.command.getOptions().defaultSize || 16
+  const rowIndentDom = document.querySelector<HTMLDivElement>(
+    '.menu-item__row-indent'
+  )!
+  const rowIndentOptionDom =
+    rowIndentDom.querySelector<HTMLDivElement>('.options')!
+  const rowIndentLeftInput = rowIndentDom.querySelector<HTMLInputElement>(
+    '.row-indent-left-input'
+  )!
+  const rowIndentRightInput = rowIndentDom.querySelector<HTMLInputElement>(
+    '.row-indent-right-input'
+  )!
+  const rowIndentInput = rowIndentDom.querySelector<HTMLInputElement>(
+    '.row-indent-input'
+  )!
+  const rowHangingIndentInput = rowIndentDom.querySelector<HTMLInputElement>(
+    '.row-hanging-indent-input'
+  )!
+  const rowIndentApplyDom = rowIndentDom.querySelector<HTMLButtonElement>(
+    '.row-indent-apply'
+  )!
+  const toIndentChars = (value?: number | null) => {
+    if (!value || !currentRangeSize) return ''
+    return `${Number((value / currentRangeSize).toFixed(2))}`
+  }
+  const parseIndentChars = (input: string) => {
+    const value = Number(input)
+    if (!Number.isFinite(value) || value <= 0) return null
+    return Math.round(value * currentRangeSize)
+  }
+  rowIndentDom.onclick = function (evt) {
+    const target = evt.target as HTMLElement
+    if (target.closest('.options')) return
+    rowIndentOptionDom.classList.toggle('visible')
+  }
+  rowIndentOptionDom.onmousedown = function (evt) {
+    const target = evt.target as HTMLElement
+    if (target.closest('input') || target.closest('button')) {
+      evt.stopPropagation()
+      return
+    }
+    const li = target.closest('li')
+    if (!li?.dataset.rowindent && !li?.dataset.rowindentChars) return
+    evt.preventDefault()
+    const rowIndent =
+      li.dataset.rowindentChars !== undefined
+        ? parseIndentChars(li.dataset.rowindentChars)
+        : Number(li.dataset.rowindent)
+    instance.command.executeRowIndent(rowIndent)
+    rowIndentOptionDom.classList.remove('visible')
+  }
+  rowIndentApplyDom.onclick = function (evt) {
+    evt.preventDefault()
+    evt.stopPropagation()
+    instance.command.executeRowIndent({
+      left: parseIndentChars(rowIndentLeftInput.value),
+      right: parseIndentChars(rowIndentRightInput.value),
+      firstLine: parseIndentChars(rowIndentInput.value),
+      hanging: parseIndentChars(rowHangingIndentInput.value)
+    })
+    rowIndentOptionDom.classList.remove('visible')
+  }
+
   const listDom = document.querySelector<HTMLDivElement>('.menu-item__list')!
   listDom.title = `列表(${isApple ? '⌘' : 'Ctrl'}+Shift+U)`
   const listOptionDom = listDom.querySelector<HTMLDivElement>('.options')!
@@ -1757,6 +1821,8 @@ window.onload = function () {
     } else {
       sizeSelectDom.innerText = `${payload.size}`
     }
+    // 段落缩进：记录当前字号用于字符换算
+    currentRangeSize = payload.size || currentRangeSize
     payload.bold
       ? boldDom.classList.add('active')
       : boldDom.classList.remove('active')
@@ -1814,6 +1880,27 @@ window.onload = function () {
       `[data-rowmargin='${payload.rowMargin}']`
     )!
     curRowMarginDom.classList.add('active')
+
+    // 段落缩进
+    rowIndentLeftInput.value = toIndentChars(payload.rowIndentLeft)
+    rowIndentRightInput.value = toIndentChars(payload.rowIndentRight)
+    rowIndentInput.value = toIndentChars(payload.rowIndent)
+    rowHangingIndentInput.value = toIndentChars(payload.rowHangingIndent)
+    rowIndentOptionDom
+      .querySelectorAll<HTMLLIElement>('li')
+      .forEach(li => li.classList.remove('active'))
+    const activeRowIndentChars =
+      payload.rowIndent && currentRangeSize
+        ? Number((payload.rowIndent / currentRangeSize).toFixed(2))
+        : 0
+    const curRowIndentDom =
+      rowIndentOptionDom.querySelector<HTMLLIElement>(
+        `[data-rowindent='${payload.rowIndent || 0}']`
+      ) ||
+      rowIndentOptionDom.querySelector<HTMLLIElement>(
+        `[data-rowindent-chars='${activeRowIndentChars}']`
+      )
+    curRowIndentDom?.classList.add('active')
 
     // 功能
     payload.undo

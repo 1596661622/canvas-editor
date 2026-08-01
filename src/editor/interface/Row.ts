@@ -23,6 +23,10 @@ export interface IRow {
   isList?: boolean
   listIndex?: number
   offsetX?: number
+  // 用于行内对齐（居中/居右）宽度计算的横向偏移，含左缩进/首行/悬挂
+  rowFlexOffsetX?: number
+  // 右缩进（单位px，已乘scale）
+  rightOffsetX?: number
   offsetY?: number
   elementList: IRowElement[]
   isWidthNotEnough?: boolean

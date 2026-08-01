@@ -72,6 +72,7 @@ import {
   IImageCaption,
   IImageCrop,
   IInsertElementListOption,
+  IRowIndentPayload,
   IUpdateElementByIdOption
 } from '../../interface/Element'
 import {
@@ -978,6 +979,65 @@ export class CommandAdapt {
     const isSetCursor = startIndex === endIndex
     const curIndex = isSetCursor ? endIndex : startIndex
     this.draw.render({ curIndex, isSetCursor })
+  }
+
+  // 写入单个段落元素的缩进配置
+  private setParagraphIndentValue(
+    element: IElement,
+    key: 'rowIndentLeft' | 'rowIndentRight' | 'rowIndent' | 'rowHangingIndent',
+    value: number | null | undefined
+  ) {
+    if (value === undefined) return
+    const nextValue = value === null ? null : Math.max(0, value)
+    if (nextValue === null || nextValue === 0) {
+      delete element[key]
+    } else {
+      element[key] = nextValue
+    }
+  }
+
+  // 批量设置当前段落缩进
+  private setParagraphIndent(payload: IRowIndentPayload) {
+    const isReadonly = this.draw.isReadonly()
+    if (isReadonly) return
+    const { startIndex, endIndex } = this.range.getRange()
+    if (!~startIndex && !~endIndex) return
+    const paragraphElementList = this.range.getRangeParagraphElementList()
+    if (!paragraphElementList) return
+    paragraphElementList.forEach(element => {
+      this.setParagraphIndentValue(element, 'rowIndentLeft', payload.left)
+      this.setParagraphIndentValue(element, 'rowIndentRight', payload.right)
+      this.setParagraphIndentValue(element, 'rowIndent', payload.firstLine)
+      this.setParagraphIndentValue(element, 'rowHangingIndent', payload.hanging)
+    })
+    // 光标定位
+    const isSetCursor = startIndex === endIndex
+    const curIndex = isSetCursor ? endIndex : startIndex
+    this.draw.render({ curIndex, isSetCursor })
+  }
+
+  // 设置当前段落的首行缩进
+  public rowIndent(payload: number | IRowIndentPayload | null) {
+    if (typeof payload === 'number' || payload === null) {
+      this.setParagraphIndent({ firstLine: payload })
+    } else {
+      this.setParagraphIndent(payload)
+    }
+  }
+
+  // 设置当前段落的左缩进
+  public rowIndentLeft(payload: number | null) {
+    this.setParagraphIndent({ left: payload })
+  }
+
+  // 设置当前段落的右缩进
+  public rowIndentRight(payload: number | null) {
+    this.setParagraphIndent({ right: payload })
+  }
+
+  // 设置当前段落的悬挂缩进
+  public rowHangingIndent(payload: number | null) {
+    this.setParagraphIndent({ hanging: payload })
   }
 
   public insertTable(row: number, col: number) {

@@ -390,6 +390,53 @@ instance.command.executeRowFlex(rowFlex: RowFlex)
 instance.command.executeRowMargin(rowMargin: number)
 ```
 
+## executeRowIndent
+
+功能：首行缩进。作用于光标所在段落，单位 px；传 `null` 或 `0` 清除。传对象时可一次设置四项缩进（缺省项保持原值）。
+
+用法：
+
+```javascript
+instance.command.executeRowIndent(payload: number | IRowIndentPayload | null)
+
+interface IRowIndentPayload {
+  left?: number | null       // 左缩进
+  right?: number | null      // 右缩进
+  firstLine?: number | null  // 首行缩进
+  hanging?: number | null    // 悬挂缩进
+}
+```
+
+## executeRowIndentLeft
+
+功能：段落左缩进，单位 px。
+
+用法：
+
+```javascript
+instance.command.executeRowIndentLeft(payload: number | null)
+```
+
+## executeRowIndentRight
+
+功能：段落右缩进，单位 px。
+
+用法：
+
+```javascript
+instance.command.executeRowIndentRight(payload: number | null)
+```
+
+## executeRowHangingIndent
+
+功能：悬挂缩进，单位 px。作用于段落除首行外的所有行，与首行缩进互斥。
+
+用法：
+
+```javascript
+instance.command.executeRowHangingIndent(payload: number | null)
+```
+
 ## executeInsertTable
 
 功能：插入表格
