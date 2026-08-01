@@ -61,6 +61,9 @@ export class Command {
   public executeTableAutoFitToPage: CommandAdapt['tableAutoFitToPage']
   public executeTableSelectAll: CommandAdapt['tableSelectAll']
   public executeImage: CommandAdapt['image']
+  public executeUpdateSeparator: CommandAdapt['updateSeparator']
+  public executeWordArt: CommandAdapt['wordArt']
+  public executeUpdateWordArt: CommandAdapt['updateWordArt']
   public executeHyperlink: CommandAdapt['hyperlink']
   public executeDeleteHyperlink: CommandAdapt['deleteHyperlink']
   public executeCancelHyperlink: CommandAdapt['cancelHyperlink']
@@ -358,6 +361,15 @@ export class Command {
       adapt.tableSelectAll.bind(adapt)
     )
     this.executeImage = this.wrap('executeImage', adapt.image.bind(adapt))
+    this.executeUpdateSeparator = this.wrap(
+      'executeUpdateSeparator',
+      adapt.updateSeparator.bind(adapt)
+    )
+    this.executeWordArt = this.wrap('executeWordArt', adapt.wordArt.bind(adapt))
+    this.executeUpdateWordArt = this.wrap(
+      'executeUpdateWordArt',
+      adapt.updateWordArt.bind(adapt)
+    )
     this.executeHyperlink = this.wrap(
       'executeHyperlink',
       adapt.hyperlink.bind(adapt)

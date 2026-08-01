@@ -663,6 +663,50 @@ instance.command.executeImage({
 })
 ```
 
+## executeWordArt
+
+功能：插入艺术字。以块级元素整体排版，不参与文本流编辑。返回新元素 id；只读、禁用或无光标时返回 `null`。
+
+用法：
+
+```javascript
+instance.command.executeWordArt({
+  value: string;   // 必填，空串直接返回 null
+  font?: string;   // 默认 options.defaultFont
+  size?: number;   // 默认 36
+  color?: string;  // 默认 #000000
+}): string | null
+```
+
+## executeUpdateWordArt
+
+功能：更新光标处或选区内**第一个**艺术字的属性，缺省项保持原值，改完自动重算尺寸。
+
+用法：
+
+```javascript
+instance.command.executeUpdateWordArt({
+  value?: string;
+  font?: string;
+  size?: number;
+  color?: string;
+})
+```
+
+## executeUpdateSeparator
+
+功能：更新光标处或选区内**第一个**分隔符的样式。`executeSeparator` 在线型未变化时会短路返回，此入口用于只改颜色或粗细的场景。
+
+用法：
+
+```javascript
+instance.command.executeUpdateSeparator({
+  dashArray?: number[];
+  lineWidth?: number;
+  color?: string;
+})
+```
+
 ## executeHyperlink
 
 功能：插入链接

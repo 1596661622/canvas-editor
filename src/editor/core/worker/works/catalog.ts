@@ -29,7 +29,8 @@ enum ElementType {
   TITLE = 'title',
   AREA = 'area',
   LIST = 'list',
-  LABEL = 'label'
+  LABEL = 'label',
+  WORD_ART = 'wordArt'
 }
 
 enum TitleLevel {

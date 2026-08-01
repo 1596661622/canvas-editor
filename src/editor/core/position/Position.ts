@@ -427,7 +427,8 @@ export class Position {
           !traceParticle.isTraceHidden(element) &&
           ((element.imgDisplay !== ImageDisplay.INLINE &&
             element.type === ElementType.IMAGE) ||
-            element.type === ElementType.LATEX)
+            element.type === ElementType.LATEX ||
+            element.type === ElementType.WORD_ART)
             ? curRow.ascent - metrics.height
             : curRow.ascent
         // 偏移量（内部计算使用）

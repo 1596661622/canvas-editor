@@ -11,6 +11,7 @@ import {
 } from '.'
 import { IFrameBlock } from '../core/draw/particle/block/modules/IFrameBlock'
 import { LaTexParticle } from '../core/draw/particle/latex/LaTexParticle'
+import { WordArtParticle } from '../core/draw/particle/WordArtParticle'
 import { NON_BREAKING_SPACE, ZERO } from '../dataset/constant/Common'
 import {
   AREA_CONTEXT_ATTR,
@@ -652,6 +653,18 @@ export function formatElementList(
       el.width = el.width || width
       el.height = el.height || height
       el.laTexSVG = svg
+      el.id = el.id || getUUID()
+    }
+    if (el.type === ElementType.WORD_ART) {
+      if (!el.width || !el.height) {
+        const { width, height } = WordArtParticle.measureSize(
+          el.value,
+          el.font || 'SimSun',
+          el.size || 36
+        )
+        el.width = el.width || width
+        el.height = el.height || height
+      }
       el.id = el.id || getUUID()
     }
     i++
@@ -1437,6 +1450,15 @@ export function createDomFromElementList(
           img.height = element.height!
         }
         clipboardDom.append(img)
+      } else if (element.type === ElementType.WORD_ART) {
+        const span = document.createElement('span')
+        span.style.fontFamily = element.font || 'SimSun'
+        span.style.fontSize = `${element.size || 36}px`
+        if (element.color) {
+          span.style.color = element.color
+        }
+        span.innerText = element.value || ''
+        clipboardDom.append(span)
       } else if (element.type === ElementType.BLOCK) {
         if (element.block?.type === BlockType.VIDEO) {
           const src = element.block.videoBlock?.src
@@ -1960,6 +1982,7 @@ export function getTextFromElementList(
       } else if (
         !element.type ||
         element.type === ElementType.LATEX ||
+        element.type === ElementType.WORD_ART ||
         TEXTLIKE_ELEMENT_TYPE.includes(element.type)
       ) {
         let textLike = ''
@@ -1972,6 +1995,8 @@ export function getTextFromElementList(
             : ''
         } else if (element.type === ElementType.DATE) {
           textLike = element.valueList?.map(v => v.value).join('') || ''
+        } else if (element.type === ElementType.WORD_ART) {
+          textLike = element.value || ''
         } else {
           textLike = element.value
         }

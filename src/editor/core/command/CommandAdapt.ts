@@ -127,6 +127,7 @@ import { Control } from '../draw/control/Control'
 import { Draw } from '../draw/Draw'
 import { INavigateInfo, Search } from '../draw/interactive/Search'
 import { TableOperate } from '../draw/particle/table/TableOperate'
+import { WordArtParticle } from '../draw/particle/WordArtParticle'
 import { CanvasEvent } from '../event/CanvasEvent'
 import { pasteByApi } from '../event/handlers/paste'
 import { HistoryManager } from '../history/HistoryManager'
@@ -1406,6 +1407,108 @@ export class CommandAdapt {
         isCompute: false
       })
     }
+  }
+
+  // 更新已存在分隔符的样式：上游 separator 在线型未变时会短路 return，
+  // 此入口用于只改颜色/粗细的场景
+  public updateSeparator(payload: {
+    dashArray?: number[]
+    lineWidth?: number
+    color?: string
+  }) {
+    const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
+    if (isDisabled) return
+    const { startIndex, endIndex } = this.range.getRange()
+    const elementList = this.draw.getElementList()
+    let targetIndex = -1
+    const lo = Math.max(0, Math.min(startIndex, endIndex))
+    const hi = Math.max(startIndex, endIndex)
+    for (let i = lo; i <= hi; i++) {
+      if (elementList[i]?.type === ElementType.SEPARATOR) {
+        targetIndex = i
+        break
+      }
+    }
+    if (targetIndex === -1) return
+    const element = elementList[targetIndex]
+    if (payload.dashArray !== undefined) element.dashArray = payload.dashArray
+    if (payload.lineWidth !== undefined) element.lineWidth = payload.lineWidth
+    if (payload.color !== undefined) element.color = payload.color
+    this.range.setRange(targetIndex, targetIndex)
+    this.draw.render({
+      curIndex: targetIndex
+    })
+  }
+
+  public wordArt(payload: {
+    value: string
+    font?: string
+    size?: number
+    color?: string
+  }): string | null {
+    const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
+    if (isDisabled) return null
+    const { startIndex, endIndex } = this.range.getRange()
+    if (!~startIndex && !~endIndex) return null
+    const text = payload.value
+    if (!text) return null
+    const font = payload.font || this.options.defaultFont
+    const size = payload.size || 36
+    const color = payload.color || '#000000'
+    const { width, height } = WordArtParticle.measureSize(text, font, size)
+    const id = getUUID()
+    this.insertElementList([
+      {
+        id,
+        type: ElementType.WORD_ART,
+        value: text,
+        font,
+        size,
+        color,
+        width,
+        height
+      }
+    ])
+    return id
+  }
+
+  public updateWordArt(payload: {
+    value?: string
+    font?: string
+    size?: number
+    color?: string
+  }) {
+    const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
+    if (isDisabled) return
+    const { startIndex, endIndex } = this.range.getRange()
+    const elementList = this.draw.getElementList()
+    // 在光标位置或选区范围内查找艺术字元素
+    let targetIndex = -1
+    const lo = Math.max(0, Math.min(startIndex, endIndex))
+    const hi = Math.max(startIndex, endIndex)
+    for (let i = lo; i <= hi; i++) {
+      if (elementList[i]?.type === ElementType.WORD_ART) {
+        targetIndex = i
+        break
+      }
+    }
+    if (targetIndex === -1) return
+    const element = elementList[targetIndex]
+    if (payload.value !== undefined) element.value = payload.value
+    if (payload.font !== undefined) element.font = payload.font
+    if (payload.size !== undefined) element.size = payload.size
+    if (payload.color !== undefined) element.color = payload.color
+    const { width, height } = WordArtParticle.measureSize(
+      element.value,
+      element.font || 'SimSun',
+      element.size || 36
+    )
+    element.width = width
+    element.height = height
+    this.range.setRange(targetIndex, targetIndex)
+    this.draw.render({
+      curIndex: targetIndex
+    })
   }
 
   public image(payload: IDrawImagePayload): string | null {

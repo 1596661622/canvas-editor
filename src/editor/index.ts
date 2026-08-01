@@ -67,6 +67,7 @@ import {
   getTextFromElementList,
   type IGetElementListByHTMLOption
 } from './utils/element'
+import { compareElementList } from './utils/diff'
 import { BackgroundRepeat, BackgroundSize } from './dataset/enum/Background'
 import { TextDecorationStyle } from './dataset/enum/Text'
 import { mergeOption } from './utils/option'
@@ -174,7 +175,8 @@ export {
   splitText,
   createDomFromElementList,
   getElementListByHTML,
-  getTextFromElementList
+  getTextFromElementList,
+  compareElementList
 }
 
 // 对外常量

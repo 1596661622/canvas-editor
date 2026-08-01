@@ -49,6 +49,7 @@ import { ElementType } from '../../dataset/enum/Element'
 import { TraceType } from '../../dataset/enum/Trace'
 import { ImageParticle } from './particle/ImageParticle'
 import { LaTexParticle } from './particle/latex/LaTexParticle'
+import { WordArtParticle } from './particle/WordArtParticle'
 import { TextParticle } from './particle/TextParticle'
 import { PageNumber } from './frame/PageNumber'
 import { ScrollObserver } from '../observer/ScrollObserver'
@@ -169,6 +170,7 @@ export class Draw {
   private previewer: Previewer
   private imageParticle: ImageParticle
   private laTexParticle: LaTexParticle
+  private wordArtParticle: WordArtParticle
   private textParticle: TextParticle
   private tableParticle: TableParticle
   private tablePaging: TablePaging
@@ -262,6 +264,7 @@ export class Draw {
     this.previewer = new Previewer(this)
     this.imageParticle = new ImageParticle(this)
     this.laTexParticle = new LaTexParticle(this)
+    this.wordArtParticle = new WordArtParticle(this)
     this.textParticle = new TextParticle(this)
     this.tableParticle = new TableParticle(this)
     this.tablePaging = new TablePaging(this)
@@ -1718,7 +1721,8 @@ export class Draw {
         metrics.boundingBoxDescent = preElement?.metrics.boundingBoxDescent || 0
       } else if (
         element.type === ElementType.IMAGE ||
-        element.type === ElementType.LATEX
+        element.type === ElementType.LATEX ||
+        element.type === ElementType.WORD_ART
       ) {
         // 浮动图片无需计算数据
         if (
@@ -1975,7 +1979,8 @@ export class Draw {
         !this.traceParticle.isTraceHidden(element) &&
         ((element.imgDisplay !== ImageDisplay.INLINE &&
           element.type === ElementType.IMAGE) ||
-          element.type === ElementType.LATEX)
+          element.type === ElementType.LATEX ||
+          element.type === ElementType.WORD_ART)
           ? metrics.height + rowMargin
           : metrics.boundingBoxAscent + rowMargin
       const height =
@@ -2502,6 +2507,9 @@ export class Draw {
         } else if (element.type === ElementType.LATEX) {
           this.textParticle.complete()
           this.laTexParticle.render(ctx, element, x, y + offsetY)
+        } else if (element.type === ElementType.WORD_ART) {
+          this.textParticle.complete()
+          this.wordArtParticle.render(ctx, element, x, y + offsetY)
         } else if (element.type === ElementType.TABLE) {
           if (isCrossRowCol) {
             rangeRecord.x = x
