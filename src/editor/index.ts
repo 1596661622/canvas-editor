@@ -68,6 +68,8 @@ import {
   type IGetElementListByHTMLOption
 } from './utils/element'
 import { compareElementList } from './utils/diff'
+import { TraceType } from './dataset/enum/Trace'
+import { ITraceRecord } from './interface/Element'
 import { BackgroundRepeat, BackgroundSize } from './dataset/enum/Background'
 import { TextDecorationStyle } from './dataset/enum/Text'
 import { mergeOption } from './utils/option'
@@ -226,11 +228,13 @@ export {
   ControlState,
   FlexDirection,
   WatermarkType,
-  WatermarkLayer
+  WatermarkLayer,
+  TraceType
 }
 
 // 对外类型
 export type {
+  ITraceRecord,
   IElement,
   IEditorData,
   IEditorOption,
